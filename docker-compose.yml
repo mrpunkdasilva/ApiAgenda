@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${API_PORT}:80"
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__BDService=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=True;
+    networks:
+      - apiagenda-network
+    restart: on-failure
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${DB_PASSWORD}
+      - MSSQL_PID=${SQL_PID}
+    ports:
+      - "${SQL_PORT}:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - apiagenda-network
+    command: >
+      bash -c "
+        # Start SQL Server
+        /opt/mssql/bin/sqlservr &
+        # Wait for SQL Server to start
+        sleep 30
+        # Run the initialization script
+        /opt/mssql-tools/bin/sqlcmd -S localhost -U ${DB_USER} -P ${DB_PASSWORD} -i /docker-entrypoint-initdb.d/init-db.sql
+        # Keep container running
+        tail -f /dev/null
+      "
+
+networks:
+  apiagenda-network:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
+    driver: local

@@ -1,4 +1,4 @@
-﻿using API.DataAccess;
+using API.DataAccess;
 using API.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,11 +22,15 @@ namespace API.Service.Controllers
 
             contatoRepositorio = new ContatoRepositorio(connString);
 
-
-
             _logger = logger;
         }
-
+        
+        [HttpGet]
+        [Route("health")]
+        public IActionResult HealthCheck()
+        {
+            return Ok(new { status = "healthy", timestamp = DateTime.UtcNow });
+        }
 
         [HttpGet]
         [Route("contatos")]
@@ -45,9 +49,23 @@ namespace API.Service.Controllers
 
         [HttpGet]
         [Route("contatoscelular")]
-        public Contato GetByCeelular(string celular)
+        public Contato GetByCelular(string celular)
         {
             return contatoRepositorio.GetContatoPorCelular(celular);
+        }
+        
+        [HttpGet]
+        [Route("contatosnome")]
+        public Contato GetByNome(string nome)
+        {
+            return contatoRepositorio.GetContatoPorNome(nome);
+        }
+        
+        [HttpGet]
+        [Route("contatosnomeexato")]
+        public Contato GetByNomeExato(string nome)
+        {
+            return contatoRepositorio.GetContatoPorNomeExato(nome);
         }
 
 
@@ -73,9 +91,9 @@ namespace API.Service.Controllers
 
         [HttpDelete]
         [Route("excluircontato")]
-        public string ExcluirContato(Contato contato)
+        public string ExcluirContato(int id)
         {
-            int result = contatoRepositorio.Delete(contato);
+            int result = contatoRepositorio.Delete(id);
             if (result == 0) return "Erro ao excluir contato!!";
             else return "Contato excluido com sucesso!!!";
         }

@@ -1,4 +1,4 @@
-﻿using API.Model;
+using API.Model;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -45,11 +45,11 @@ namespace API.DataAccess
         }
         
         /// <summary>
-        /// Retornando contato por nome
+        /// Retornando contato por nome exato
         /// </summary>
         /// <param name="nome"></param>
         /// <returns></returns>
-        public Contato GetContatoPorNome(string nome)
+        public Contato GetContatoPorNomeExato(string nome)
         {
             return DB.Contatos.Where(x => x.Nome == nome).FirstOrDefault();
         }
